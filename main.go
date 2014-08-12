@@ -5,12 +5,57 @@ import (
   "os"
   "log"
   "fmt"
+  "bytes"
+  "errors"
+  _"io/ioutil"
+  "net/url"
   "html/template"
 
   "github.com/gorilla/mux"
   "github.com/driftyco/go-utils"
   "github.com/moovweb/gosass"
 )
+
+func MakeVariableString(variables url.Values) string {
+
+  var buffer bytes.Buffer
+
+  for key, value := range variables {
+    buffer.WriteString(key + ": #" + value[0] + ";\n")
+  }
+
+  return buffer.String()
+}
+/**
+ * Compile a new Ionic Sass file from the given URL values of the form $variable=HEX (no #)
+ */
+func Compile(variables url.Values) (string, error) {
+  log.Println("Variables", variables)
+
+  variableString := MakeVariableString(variables)
+
+  str := variableString + "\n@import \"ionic\";"
+
+  ctx := gosass.Context{
+    Options: gosass.Options{
+      SourceComments: false,
+      OutputStyle: gosass.NESTED_STYLE,
+      IncludePaths: []string{"sass/nightly"},
+    },
+    SourceString: str,
+    OutputString: "",
+    ErrorStatus: 0,
+    ErrorMessage: "",
+  }
+
+  gosass.Compile(&ctx)
+
+  if ctx.ErrorStatus != 0 {
+    return "", errors.New(ctx.ErrorMessage)
+  }
+
+  return ctx.OutputString, nil
+}
 
 func SassHandler(w http.ResponseWriter, r *http.Request) {
   vars := mux.Vars(r)
@@ -28,30 +73,17 @@ func SassHandler(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  path := "sass/nightly/ionic.scss"
+  sass, err := Compile(r.URL.Query())
 
-  ctx := gosass.FileContext{
-    Options: gosass.Options{
-      OutputStyle: gosass.NESTED_STYLE,
-      IncludePaths: make([]string, 0),
-    },
-    InputPath: path,
-    OutputString: "",
-    ErrorStatus: 0,
-    ErrorMessage: "",
-  }
-
-  gosass.CompileFile(&ctx)
-
-  if ctx.ErrorStatus != 0 {
-    fmt.Fprintf(os.Stderr, "Build error %s\n", ctx.ErrorMessage)
-    goutils.Send500Json(w, "Build error on server")
+  if err != nil {
+    fmt.Fprintf(os.Stderr, "Build error %s\n", err)
+    goutils.Send500Json(w, err.Error())
     return
   }
 
   goutils.JsonResponse(w, map[string]string{
     "status": "success",
-    "sass": ctx.OutputString,
+    "sass": sass,
   }, 200)
 }
 
