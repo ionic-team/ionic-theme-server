@@ -7,6 +7,7 @@ import (
   "fmt"
   "bytes"
   "errors"
+  "strings"
   _"io/ioutil"
   "net/url"
   "html/template"
@@ -26,12 +27,16 @@ func MakeVariableString(variables url.Values) string {
 
   return buffer.String()
 }
-/**
- * Compile a new Ionic Sass file from the given URL values of the form $variable=HEX (no #)
- */
-func Compile(variables url.Values) (string, error) {
-  log.Println("Variables", variables)
 
+func RawSassBuilder(version string, variables url.Values) (string, error) {
+  variableString := MakeVariableString(variables)
+
+  str := variableString + "\n@import \"ionic\";"
+
+  return str, nil
+}
+
+func CssBuilder(version string, variables url.Values) (string, error) {
   variableString := MakeVariableString(variables)
 
   str := variableString + "\n@import \"ionic\";"
@@ -57,6 +62,25 @@ func Compile(variables url.Values) (string, error) {
   return ctx.OutputString, nil
 }
 
+/**
+ * Compile a new Ionic Sass file from the given URL values of the form $variable=HEX (no #)
+ */
+func Compile(version string, format string, variables url.Values) (string, error) {
+  switch format {
+  case "scss":
+    return RawSassBuilder(version, variables)
+  case "css":
+    return CssBuilder(version, variables)
+  }
+  return "", nil
+}
+
+func GetFormat(filename string) string {
+  parts := strings.Split(filename, ".")
+  ext := parts[len(parts)-1]
+  return ext
+}
+
 func SassHandler(w http.ResponseWriter, r *http.Request) {
   w.Header().Set("Access-Control-Allow-Origin", "*")
 
@@ -64,18 +88,20 @@ func SassHandler(w http.ResponseWriter, r *http.Request) {
 
   log.Println("Vars", vars)
 
-  _, ok := vars["version"]
+  version, ok := vars["version"]
   if !ok {
     goutils.Send400Json(w, "No version supplied")
     return
   }
-  _, ok = vars["format"]
+  filename, ok := vars["filename"]
   if !ok {
-    goutils.Send400Json(w, "No format supplied (ex, ionic.min.css)")
+    goutils.Send400Json(w, "No filename supplied (ex, ionic.min.css)")
     return
   }
 
-  sass, err := Compile(r.URL.Query())
+  format := GetFormat(filename)
+
+  sass, err := Compile(version, format, r.URL.Query())
 
   if err != nil {
     fmt.Fprintf(os.Stderr, "Build error %s\n", err)
@@ -95,7 +121,7 @@ func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
   r := mux.NewRouter()
-  r.HandleFunc("/{version}/{format}", SassHandler)
+  r.HandleFunc("/{version}/{filename}", SassHandler)
 
   r.NotFoundHandler = http.HandlerFunc(NotFoundHandler)
   http.Handle("/", r)
