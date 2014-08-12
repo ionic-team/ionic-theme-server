@@ -84,7 +84,7 @@ func SassHandler(w http.ResponseWriter, r *http.Request) {
   }
 
   w.Header().Set("Content-Type", "text/css")
-  fmt.Fprintf(w, sass)
+  w.Write([]byte(sass))
 }
 
 func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
