@@ -58,6 +58,8 @@ func Compile(variables url.Values) (string, error) {
 }
 
 func SassHandler(w http.ResponseWriter, r *http.Request) {
+  w.Header().Set("Access-Control-Allow-Origin", "*")
+
   vars := mux.Vars(r)
 
   log.Println("Vars", vars)
@@ -81,10 +83,8 @@ func SassHandler(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  goutils.JsonResponse(w, map[string]string{
-    "status": "success",
-    "sass": sass,
-  }, 200)
+  w.Header().Set("Content-Type", "text/css")
+  fmt.Fprintf(w, sass)
 }
 
 func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
