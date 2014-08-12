@@ -13,7 +13,7 @@ import (
 
   "github.com/gorilla/mux"
   "github.com/driftyco/go-utils"
-  "github.com/moovweb/gosass"
+  "github.com/driftyco/gosass"
 )
 
 func MakeVariableString(variables url.Values) string {
