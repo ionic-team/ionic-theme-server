@@ -1,0 +1,17 @@
+@import "ionic";
+
+@function best-text-color($color) {
+  @if (lightness( $color ) > 70) {
+    @return #000000;
+  }
+  @else {
+    @return #FFFFFF;
+  }
+}
+
+.bar {
+  &.bar-brand {
+    @include bar-style($brand, lighten($brand, 50%), best-text-color($brand));
+  }
+}
+

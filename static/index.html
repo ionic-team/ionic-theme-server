@@ -56,6 +56,7 @@
         }
       })
       .controller('ThemeCtrl', function($scope) {
+        /*
         $scope.colors =  [
           {
             'name': 'Light',
@@ -103,6 +104,21 @@
             'color': '#444444'
           }
         ];
+        */
+        $scope.colors = [
+          {
+            'name': 'Brand',
+            'variable': '$brand',
+            'color': '#f8f8f8'
+          },
+          /*
+          {
+            'name': 'Brand',
+            'variable': '$brand',
+            'color': '#f8f8f8'
+          },
+          */
+        ]
 
         $scope.createTheme = function() {
           console.log('Creating theme', $scope.colors);

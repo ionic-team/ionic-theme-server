@@ -38,7 +38,7 @@ func MakeVariableString(variables url.Values) string {
 func RawSassBuilder(version string, variables url.Values) (string, error) {
   variableString := MakeVariableString(variables)
 
-  str := variableString + "\n@import \"ionic\";"
+  str := variableString + "\n@import \"ionic-brand\";"
 
   return str, nil
 }
@@ -46,7 +46,7 @@ func RawSassBuilder(version string, variables url.Values) (string, error) {
 func CssBuilder(version string, variables url.Values) (string, error) {
   variableString := MakeVariableString(variables)
 
-  str := variableString + "\n@import \"ionic\";"
+  str := variableString + "\n@import \"ionic-brand\";"
 
   ctx := gosass.Context{
     Options: gosass.Options{
