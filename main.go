@@ -11,6 +11,7 @@ import (
   _"io/ioutil"
   "net/url"
   "html/template"
+  _"encoding/base64"
 
   "github.com/gorilla/mux"
   "github.com/driftyco/go-utils"
@@ -20,10 +21,16 @@ import (
 func MakeVariableString(variables url.Values) string {
 
   var buffer bytes.Buffer
+  //var decodedKey string
+  //var decodedValue string
 
   for key, value := range variables {
-    buffer.WriteString(key + ": #" + value[0] + ";\n")
+    //decodedKey, _ = url.QueryUnescape(key)
+    //decodedValue, _ = url.QueryUnescape(value[0])
+    buffer.WriteString(key + ": " + value[0] + ";\n")
   }
+
+  log.Println("Got String:\n", buffer.String())
 
   return buffer.String()
 }
@@ -119,17 +126,25 @@ func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
   notFoundTemplate.Execute(w, nil)
 }
 
+func HomeHandler(w http.ResponseWriter, r *http.Request) {
+  indexTemplate := template.Must(template.ParseFiles("templates/index.html"))
+
+  indexTemplate.Execute(w, nil)
+
+}
+
 func main() {
   r := mux.NewRouter()
-  r.HandleFunc("/{version}/{filename}", SassHandler)
+  //r.HandleFunc("/", HomeHandler)
+  r.HandleFunc("/api/sass/{version}/{filename}", SassHandler)
+  r.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))//http.StripPrefix("/", http.FileServer(http.Dir("./static"))))
 
   r.NotFoundHandler = http.HandlerFunc(NotFoundHandler)
   http.Handle("/", r)
 
-  //http.Handle("/", http.StripPrefix("/app/", http.FileServer(http.Dir("../app"))))
   //http.StripPrefix("/", http.FileServer(http.Dir("../app"))))
 
-  port := "8080"
+  port := "8081"
   if len(os.Args) > 1 {
     port = os.Args[1]
   }

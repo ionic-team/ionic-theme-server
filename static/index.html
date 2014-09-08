@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/lib/angular.js"></script>
+    <script src="/lib/jquery-1.11.0.js"></script>
+    <script src="/lib/lodash.js"></script>
+  </head>
+  <body ng-app="ionic.theme">
+    <div id="wrapper" ng-controller="ThemeCtrl">
+      <div id="side">
+        <h2>Ionic Theme Creator</h2>
+        <p>
+          Pick your theme colors below, get a ready-to-go Ionic Sass theme.
+        </p>
+        <div id="theme">
+          <h3>Theme</h3>
+          <form ng-submit="createTheme()">
+            <div class="theme-color" ng-repeat="color in colors">
+              <label for="color-{{color.variable}}">{{color.name}}</label>
+              <input id="color-{{color.variable}}" type="color" ng-model="color.color" ng-change="colorChanged(color)">
+            </div>
+            <button type="submit" class="button" id="submit-button">Create</button>
+          </form>
+        </div>
+      </div>
+      <div id="preview">
+        <iframe theme="colors" src="/preview.html"></iframe>
+      </div>
+    </div>
+    <script>
+      angular.module('ionic.theme', [])
+      .directive('theme', function() {
+        return {
+          restrict: 'A',
+          scope: {
+            theme: '='
+          },
+          link: function($scope, $element, $attr) {
+            var cw;
+            $element.ready(function() {
+              cw = $element[0].contentWindow;
+            });
+
+            var updatePreview = _.debounce(function(colors) {
+              if(!cw) {
+                return;
+              }
+              cw.IonicThemer && cw.IonicThemer.update(colors);
+            }, 300);
+            $scope.$watch('theme', function(nv, ov) {
+              updatePreview(nv);
+            }, true);
+          }
+        }
+      })
+      .controller('ThemeCtrl', function($scope) {
+        $scope.colors =  [
+          {
+            'name': 'Light',
+            'variable': '$light',
+            'color': '#ffffff'
+          },
+          {
+            'name': 'Stable',
+            'variable': '$stable',
+            'color': '#f8f8f8'
+          },
+          {
+            'name': 'Positive',
+            'variable': '$positive',
+            'color': '#4a87ee'
+          },
+          {
+            'name': 'Calm',
+            'variable': '$calm',
+            'color': '#43cee6'
+          },
+          {
+            'name': 'Balanced',
+            'variable': '$balanced',
+            'color': '#66cc33'
+          },
+          {
+            'name': 'Energized',
+            'variable': '$energized',
+            'color': '#f0b840'
+          },
+          {
+            'name': 'Assertive',
+            'variable': '$assertive',
+            'color': '#ef4e3a'
+          },
+          {
+            'name': 'Royal',
+            'variable': '$royal',
+            'color': '#8a6de9'
+          },
+          {
+            'name': 'Dark',
+            'variable': '$dark',
+            'color': '#444444'
+          }
+        ];
+
+        $scope.createTheme = function() {
+          console.log('Creating theme', $scope.colors);
+        };
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <!--<link rel="stylesheet" href="http://code.ionicframework.com/1.0.0-beta.11/css/ionic.min.css">-->
+    <link id="ionic-css" rel="stylesheet" href="/api/sass/nightly/ionic.css">
+
+    <script src="http://code.ionicframework.com/1.0.0-beta.11/js/ionic.bundle.min.js"></script>
+  </head>
+  <body ng-app="starter">
+
+    <ion-pane>
+      <ion-header-bar class="bar-stable">
+        <h1 class="title">Title</h1>
+      </ion-header-bar>
+      <ion-content class="has-header">
+      </ion-content>
+    </ion-pane>
+    <script>
+      angular.module('starter', ['ionic']);
+
+      var css = document.getElementById('ionic-css');
+      window.IonicThemer = {
+        update: function(colors) {
+          console.log('Update themer', colors);
+          var args = [];
+          for(var i = 0; i < colors.length; i++) {
+            args.push(encodeURIComponent(colors[i].variable) + "=" + encodeURIComponent(colors[i].color));
+          }
+          var path = args.join('&');
+          var newUrl = '/api/sass/nightly/ionic.css?' + path;
+          console.log('New URL', newUrl);
+          css.setAttribute('href', newUrl);
+        }
+      }
+    </script>
+  </body>
+</html>

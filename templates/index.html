@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/lib/angular.js"></script>
+  </head>
+  <body ng-app="ionic.theme">
+    <div id="wrapper" ng-controller="ThemeCtrl">
+      <form>
+        <div class="theme-color" ng-repeat="color in colors">
+          <label for="color-{{color.variable}}">{{color.name}}</label>
+          <input id="color-{{color.variable}}" type="color" ng-model="color.color" ng-change="colorChanged(color)">
+        </div>
+      </form>
+    </div>
+    <script>
+      angular.module('ionic.theme', [])
+      .controller('ThemeCtrl', function($scope) {
+        $scope.colors = [
+          {
+            'name': 'Light',
+            'variable': '$light',
+            'color': '#ffffff'
+          },
+          {
+            'name': 'Stable',
+            'variable': '$stable',
+            'color': '#f8f8f8'
+          },
+          {
+            'name': 'Positive',
+            'variable': '$positive',
+            'color': '#4a87ee'
+          },
+          {
+            'name': 'Calm',
+            'variable': '$calm',
+            'color': '#43cee6'
+          },
+          {
+            'name': 'Balanced',
+            'variable': '$balanced',
+            'color': '#66cc33'
+          },
+          {
+            'name': 'Energized',
+            'variable': '$energized',
+            'color': '#f0b840'
+          },
+          {
+            'name': 'Assertive',
+            'variable': '$assertive',
+            'color': '#ef4e3a'
+          },
+          {
+            'name': 'Royal',
+            'variable': '$royal',
+            'color': '#8a6de9'
+          },
+          {
+            'name': 'Dark',
+            'variable': '$dark',
+            'color': '#444444'
+          }
+        ];
+      });
+    </script>
+  </body>
+</html>
